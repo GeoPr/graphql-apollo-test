@@ -1,6 +1,6 @@
 import React from 'react'
 import MovieIcon from '@material-ui/icons/Movie'
-import { AppBar, makeStyles, Typography } from '@material-ui/core'
+import { AppBar, Button, makeStyles, Typography } from '@material-ui/core'
 import FolderSharedIcon from '@material-ui/icons/FolderShared'
 import { useContextValue } from '../../state/state'
 
@@ -13,6 +13,12 @@ const useStyles = makeStyles(() => ({
   container: {
     display: 'grid',
     gridTemplate: 'auto / repeat(2, 1fr)',
+  },
+  button: {
+    display: 'grid',
+    placeContent: 'center',
+    placeItems: 'center',
+    textAlign: 'center',
   },
   tab: {
     cursor: 'pointer',
@@ -33,15 +39,19 @@ export const Header: React.FC = () => {
       <AppBar position="static">
         <div className={styles.container}>
           {tabs.map(({ icon, idx, label }) => (
-            <div
+            <Button
+              color="primary"
+              variant="contained"
+              className={styles.button}
               key={idx}
-              className={styles.tab}
               onClick={() => setActiveTab(idx)}>
-              {icon}
-              <Typography variant="h6" component="h6">
-                {label}
-              </Typography>
-            </div>
+              <div className={styles.tab}>
+                {icon}
+                <Typography variant="h6" component="h6">
+                  {label}
+                </Typography>
+              </div>
+            </Button>
           ))}
         </div>
       </AppBar>

@@ -1,32 +1,30 @@
-import React, { useEffect, useState } from 'react'
-import Paper from '@material-ui/core/Paper'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import MoreIcon from '@material-ui/icons/MoreVert'
-import IconButton from '@material-ui/core/IconButton'
-import { makeStyles, Menu, MenuItem, Typography } from '@material-ui/core'
+import React, { useState } from 'react'
+import MoreVertIcon from '@material-ui/icons/MoreVert'
+import {
+  Menu,
+  MenuItem,
+  Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  IconButton,
+} from '@material-ui/core'
 import { useQuery } from 'react-apollo'
 import { Loader } from '../../Loader/Loader'
 import { directosQuery } from './queries'
 import { IData } from './queries'
 import { DirectorsModalRemove } from '../DirectorsModalRemove/DirectorsModalRemove'
-import { useContextValue } from '../../../state/state'
+import { TModal, useContextValue } from '../../../state/state'
 import {
   IValues,
   DirectorModalEdit,
 } from '../DirectorModalEdit/DirectorModalEdit'
 import { CreateButton } from '../../CreateButton/CreateButton'
 import { DirectorsModalCreate } from '../DirectorsModalCreate/DirectorsModalCreate'
-
-const useStyles = makeStyles(() => ({
-  paper: {
-    position: 'relative',
-    minHeight: 'calc(100vh - 100px)',
-  },
-}))
+import { usePaperStyles } from '../../../UIStyles/UIStyles'
 
 export const DirectorsTable: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -38,18 +36,25 @@ export const DirectorsTable: React.FC = () => {
     age: '',
     id: '',
   })
-  const { paper } = useStyles()
+  const { paper } = usePaperStyles()
 
-  if (loading) {
-    return <Loader />
-  }
+  if (loading) return <Loader />
 
-  const openHandler = (e: any) => {
+  const closeMenu = () => setAnchorEl(null)
+
+  const iconButtonHandler = (e: any, { id, name, age }: IValues) => {
     setAnchorEl(e.currentTarget)
+    setRemovingId(id!)
+    setValues({
+      name: name,
+      age: age.toString(),
+      id: id,
+    })
   }
 
-  const closeHandler = () => {
-    setAnchorEl(null)
+  const menuItemHandler = (modalType: TModal) => {
+    closeMenu()
+    setModal(modalType)
   }
 
   return (
@@ -60,17 +65,17 @@ export const DirectorsTable: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>
+                  <TableCell align="center">
                     <Typography component="h6" variant="h6">
                       Name
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <Typography component="h6" variant="h6">
                       Age
                     </Typography>
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     <Typography component="h6" variant="h6">
                       Movies
                     </Typography>
@@ -82,11 +87,11 @@ export const DirectorsTable: React.FC = () => {
                 {data.directors.map(director => {
                   return (
                     <TableRow key={director.id}>
-                      <TableCell component="th" scope="row">
+                      <TableCell component="th" scope="row" align="center">
                         {director.name}
                       </TableCell>
-                      <TableCell>{director.age}</TableCell>
-                      <TableCell align="right">
+                      <TableCell align="center">{director.age}</TableCell>
+                      <TableCell align="center">
                         {director.movies.map((movie, key) => (
                           <div key={movie.name}>
                             {`${key + 1}. `}
@@ -94,39 +99,27 @@ export const DirectorsTable: React.FC = () => {
                           </div>
                         ))}
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="center">
                         <>
                           <IconButton
                             color="inherit"
-                            onClick={e => {
-                              openHandler(e)
-                              setRemovingId(director.id)
-                              setValues({
-                                name: director.name,
-                                age: director.age.toString(),
-                                id: director.id,
-                              })
-                            }}>
-                            <MoreIcon />
+                            onClick={e => iconButtonHandler(e, director)}>
+                            <MoreVertIcon />
                           </IconButton>
                           <Menu
                             id="simple-menu"
                             anchorEl={anchorEl}
                             keepMounted
                             open={!!anchorEl}
-                            onClose={closeHandler}>
+                            onClose={closeMenu}>
                             <MenuItem
-                              onClick={() => {
-                                closeHandler()
-                                setModal('DIRECTORS_EDIT')
-                              }}>
+                              onClick={() => menuItemHandler('DIRECTORS_EDIT')}>
                               Edit
                             </MenuItem>
                             <MenuItem
-                              onClick={() => {
-                                setModal('DIRECTORS_REMOVE')
-                                closeHandler()
-                              }}>
+                              onClick={() =>
+                                menuItemHandler('DIRECTORS_REMOVE')
+                              }>
                               Remove
                             </MenuItem>
                           </Menu>

@@ -1,28 +1,26 @@
-import React, { useState } from 'react'
-import Paper from '@material-ui/core/Paper'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import MoreIcon from '@material-ui/icons/MoreVert'
-import IconButton from '@material-ui/core/IconButton'
-import { makeStyles, Menu, MenuItem, Typography } from '@material-ui/core'
+import React, { useEffect, useState } from 'react'
+import MoreVertIcon from '@material-ui/icons/MoreVert'
+import {
+  Menu,
+  MenuItem,
+  Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  IconButton,
+} from '@material-ui/core'
 import { MoviesModalRemove } from '../MoviesModalRemove/MoviesModalRemove'
-import { useContextValue } from '../../../state/state'
+import { TModal, useContextValue } from '../../../state/state'
 import { useQuery } from 'react-apollo'
 import { Loader } from '../../Loader/Loader'
-import { moviesQuery, IData } from './queries'
+import { moviesQuery, IData, IMovie } from './queries'
 import { IValues, MoviesModalEdit } from '../MoviesModalEdit/MoviesModalEdit'
 import { CreateButton } from '../../CreateButton/CreateButton'
 import { MoviesModalCreate } from '../MoviesModalCreate/MoviesModalCreate'
-
-const useStyles = makeStyles(() => ({
-  paper: {
-    position: 'relative',
-    minHeight: 'calc(100vh - 100px)',
-  },
-}))
+import { usePaperStyles } from '../../../UIStyles/UIStyles'
 
 export const MoviesTable: React.FC = () => {
   const { data, loading } = useQuery<IData>(moviesQuery)
@@ -35,18 +33,31 @@ export const MoviesTable: React.FC = () => {
     directorId: '',
     id: '',
   })
-  const { paper } = useStyles()
+  const { paper } = usePaperStyles()
 
-  if (loading) {
-    return <Loader />
-  }
+  if (loading) return <Loader />
 
   const openHandler = (e: any) => {
     setAnchorEl(e.currentTarget)
   }
 
-  const closeHandler = () => {
-    setAnchorEl(null)
+  const closeMenu = () => setAnchorEl(null)
+
+  const iconButtonHandler = (e: any, { genre, id, name, director }: IMovie) => {
+    openHandler(e)
+    setRemovingId(id.toString())
+    setValues(prev => ({
+      ...prev,
+      name: name,
+      genre: genre,
+      directorId: director.id.toString(),
+      id: id.toString(),
+    }))
+  }
+
+  const menuItemHandler = (modalType: TModal) => {
+    closeMenu()
+    setModal(modalType)
   }
 
   return (
@@ -57,17 +68,17 @@ export const MoviesTable: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     <Typography component="h6" variant="h6">
                       Name
                     </Typography>
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     <Typography component="h6" variant="h6">
                       Genre
                     </Typography>
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="center">
                     <Typography component="h6" variant="h6">
                       Director
                     </Typography>
@@ -79,46 +90,32 @@ export const MoviesTable: React.FC = () => {
                 {data.movies.map(movie => {
                   return (
                     <TableRow key={movie.id}>
-                      <TableCell component="th" scope="row" align="right">
+                      <TableCell component="th" scope="row" align="center">
                         {movie.name}
                       </TableCell>
-                      <TableCell align="right">{movie.genre}</TableCell>
-                      <TableCell align="right">{movie.director.name}</TableCell>
-                      <TableCell align="right">
+                      <TableCell align="center">{movie.genre}</TableCell>
+                      <TableCell align="center">
+                        {movie.director.name}
+                      </TableCell>
+                      <TableCell align="center">
                         <>
                           <IconButton
                             color="inherit"
-                            onClick={e => {
-                              openHandler(e)
-                              setRemovingId(movie.id.toString())
-                              setValues(prev => ({
-                                ...prev,
-                                name: movie.name,
-                                genre: movie.genre,
-                                directorId: movie.director.id.toString(),
-                                id: movie.id.toString(),
-                              }))
-                            }}>
-                            <MoreIcon />
+                            onClick={e => iconButtonHandler(e, movie)}>
+                            <MoreVertIcon />
                           </IconButton>
                           <Menu
                             id="simple-menu"
                             anchorEl={anchorEl}
                             keepMounted
                             open={!!anchorEl}
-                            onClose={closeHandler}>
+                            onClose={closeMenu}>
                             <MenuItem
-                              onClick={e => {
-                                setModal('MOVIES_EDIT')
-                                openHandler(e)
-                              }}>
+                              onClick={() => menuItemHandler('MOVIES_EDIT')}>
                               Edit
                             </MenuItem>
                             <MenuItem
-                              onClick={e => {
-                                setModal('MOVIES_REMOVE')
-                                openHandler(e)
-                              }}>
+                              onClick={() => menuItemHandler('MOVIES_REMOVE')}>
                               Remove
                             </MenuItem>
                           </Menu>

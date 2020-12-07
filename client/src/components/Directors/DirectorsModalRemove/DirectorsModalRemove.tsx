@@ -16,12 +16,10 @@ interface IProps {
 }
 
 export const DirectorsModalRemove: React.FC<IProps> = ({ removingId }) => {
-  const { modal, setModal } = useContextValue()
+  const { modal, closeHandler } = useContextValue()
   const [removeD] = useMutation(removeDirector, {
     variables: { id: removingId },
   })
-
-  const closeHandler = () => setModal('')
 
   const remove = () => {
     closeHandler()

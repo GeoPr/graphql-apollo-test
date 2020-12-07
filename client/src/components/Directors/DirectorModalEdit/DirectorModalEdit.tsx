@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  makeStyles,
   TextField,
 } from '@material-ui/core'
 import React from 'react'
@@ -13,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-apollo'
 import { editDirector } from './mutations'
+import { useFormStyles } from '../../../UIStyles/UIStyles'
 
 const schema = yup.object().shape({
   name: yup
@@ -32,29 +32,13 @@ export interface IValues {
   id?: string
 }
 
-const useStyles = makeStyles(() => ({
-  form: {
-    display: 'grid',
-    width: 400,
-    maxWidth: '100%',
-    rowGap: '15px',
-  },
-  button: {
-    justifySelf: 'start',
-  },
-}))
-
 export const DirectorModalEdit: React.FC<IValues> = ({ age, name, id }) => {
-  const { modal, setModal } = useContextValue()
+  const { modal, closeHandler } = useContextValue()
   const { register, handleSubmit, errors } = useForm<IValues>({
     resolver: yupResolver(schema),
   })
   const [updateD] = useMutation(editDirector)
-  const styles = useStyles()
-
-  const closeHandler = () => {
-    setModal('')
-  }
+  const styles = useFormStyles()
 
   const submitHandler = handleSubmit(data => {
     const { age, name, id } = data

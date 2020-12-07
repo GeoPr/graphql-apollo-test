@@ -16,6 +16,7 @@ interface IContextProps {
   setActiveTab: TSetState<number>
   modal: TModal
   setModal: TSetState<TModal>
+  closeHandler: () => any
 }
 
 const Context = createContext({} as IContextProps)
@@ -29,6 +30,7 @@ export const StateProvider: React.FC = ({ children }) => {
     setActiveTab,
     modal,
     setModal,
+    closeHandler: () => setModal('')
   }
 
   return <Context.Provider value={value}>{children}</Context.Provider>

@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  makeStyles,
   TextField,
 } from '@material-ui/core'
 import React from 'react'
@@ -13,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-apollo'
 import { createMovie } from './mutations'
+import { useFormStyles } from '../../../UIStyles/UIStyles'
 
 interface IValues {
   name: string
@@ -32,27 +32,13 @@ const schema = yup.object().shape({
   directorId: yup.string().required('This is a required field'),
 })
 
-const useStyles = makeStyles(() => ({
-  form: {
-    display: 'grid',
-    rowGap: '30px',
-    width: 400,
-    maxWidth: '100%',
-  },
-  button: {
-    justifySelf: 'start',
-  },
-}))
-
 export const MoviesModalCreate: React.FC = () => {
-  const { modal, setModal } = useContextValue()
+  const { modal, closeHandler } = useContextValue()
   const { register, handleSubmit, errors } = useForm<IValues>({
     resolver: yupResolver(schema),
   })
-  const styles = useStyles()
+  const styles = useFormStyles()
   const [createM] = useMutation(createMovie)
-
-  const closeHandler = () => setModal('')
 
   const submitHandler = handleSubmit(data => {
     const { name, genre, directorId } = data

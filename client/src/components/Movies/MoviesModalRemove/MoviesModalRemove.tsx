@@ -16,12 +16,10 @@ interface IProps {
 }
 
 export const MoviesModalRemove: React.FC<IProps> = ({ removingId }) => {
-  const { modal, setModal } = useContextValue()
-  const [removeM, { loading }] = useMutation(removeMovie, {
+  const { modal, closeHandler } = useContextValue()
+  const [removeM] = useMutation(removeMovie, {
     variables: { id: removingId }
   })
-
-  const closeHandler = () => setModal('')
 
   const remove = () => {
     removeM()
