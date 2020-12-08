@@ -12,10 +12,6 @@ import {
   TableRow,
   IconButton,
 } from '@material-ui/core'
-import { useQuery } from 'react-apollo'
-import { Loader } from '../../Loader/Loader'
-import { directosQuery } from './queries'
-import { IData } from './queries'
 import { DirectorsModalRemove } from '../DirectorsModalRemove/DirectorsModalRemove'
 import { TModal, useContextValue } from '../../../state/state'
 import {
@@ -25,10 +21,14 @@ import {
 import { CreateButton } from '../../CreateButton/CreateButton'
 import { DirectorsModalCreate } from '../DirectorsModalCreate/DirectorsModalCreate'
 import { usePaperStyles } from '../../../UIStyles/UIStyles'
+import { ITableProps } from '../../Movies/MoviesTable/MoviesTable'
+import { IData } from './queries'
+import { compose } from 'recompose'
+import { withLoader } from '../../HOCS/withLoader'
+import { withRefetch } from '../../HOCS/withRefetch'
 
-export const DirectorsTable: React.FC = () => {
+const DirectorsTableComponent: React.FC<ITableProps<IData>> = ({ data }) => {
   const [anchorEl, setAnchorEl] = useState(null)
-  const { data, loading } = useQuery<IData>(directosQuery)
   const { setModal } = useContextValue()
   const [removingId, setRemovingId] = useState('')
   const [values, setValues] = useState<IValues>({
@@ -37,8 +37,6 @@ export const DirectorsTable: React.FC = () => {
     id: '',
   })
   const { paper } = usePaperStyles()
-
-  if (loading) return <Loader />
 
   const closeMenu = () => setAnchorEl(null)
 
@@ -140,3 +138,8 @@ export const DirectorsTable: React.FC = () => {
     </>
   )
 }
+
+export const DirectorsTable = compose<any, any>(
+  withRefetch,
+  withLoader,
+)(DirectorsTableComponent)

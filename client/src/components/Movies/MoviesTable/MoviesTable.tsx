@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import {
   Menu,
@@ -14,16 +14,22 @@ import {
 } from '@material-ui/core'
 import { MoviesModalRemove } from '../MoviesModalRemove/MoviesModalRemove'
 import { TModal, useContextValue } from '../../../state/state'
-import { useQuery } from 'react-apollo'
-import { Loader } from '../../Loader/Loader'
-import { moviesQuery, IData, IMovie } from './queries'
+import { IData, IMovie } from './queries'
 import { IValues, MoviesModalEdit } from '../MoviesModalEdit/MoviesModalEdit'
 import { CreateButton } from '../../CreateButton/CreateButton'
 import { MoviesModalCreate } from '../MoviesModalCreate/MoviesModalCreate'
 import { usePaperStyles } from '../../../UIStyles/UIStyles'
+import { withRefetch } from '../../HOCS/withRefetch'
+import { compose } from 'recompose'
+import { withLoader } from '../../HOCS/withLoader'
 
-export const MoviesTable: React.FC = () => {
-  const { data, loading } = useQuery<IData>(moviesQuery)
+export interface ITableProps<TData> {
+  loading: boolean
+  data: TData | undefined
+  refetch: () => any
+}
+
+const MoviesTableComponent: React.FC<ITableProps<IData>> = ({ data }) => {
   const [removingId, setRemovingId] = useState('')
   const [anchorEl, setAnchorEl] = useState(null)
   const { setModal } = useContextValue()
@@ -34,8 +40,6 @@ export const MoviesTable: React.FC = () => {
     id: '',
   })
   const { paper } = usePaperStyles()
-
-  if (loading) return <Loader />
 
   const openHandler = (e: any) => {
     setAnchorEl(e.currentTarget)
@@ -136,3 +140,8 @@ export const MoviesTable: React.FC = () => {
     </>
   )
 }
+
+export const MoviesTable = compose<any, any>(
+  withRefetch,
+  withLoader,
+)(MoviesTableComponent)
